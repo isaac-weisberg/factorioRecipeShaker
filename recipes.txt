@@ -1,5 +1,5 @@
-1 furnace, 1 productivity, 30 rail, 21s, 3 purple
-5 red circuit, 10 plate, 10 bricks, 5s, 1 furnace
+1 electric furnace, 1 productivity, 30 rail, 21s, 3 purple science
+5 red circuit, 10 plate, 10 bricks, 5s, 1 electric furnace
 5 red circuit, 5 green circuit, 15s, 1 productivity
 1 stick, 1 plate, 1 rock, 0.5s, 2 rail
 4 cable, 2 green circuit, 2 plastic, 6s, 1 red circuit

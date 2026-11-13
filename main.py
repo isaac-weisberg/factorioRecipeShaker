@@ -1,6 +1,8 @@
 from copy import deepcopy
 from array import array
 from dataclasses import dataclass
+from ppprint import ppprint
+from pprint import pprint
 
 def simplify(top: int, bottom: int, against: int) -> tuple[bool, int, int]:
     if top % against == 0 and bottom % against == 0:
@@ -130,6 +132,73 @@ def getRecipes() -> list[Recipe]:
     return recipes
 
 
+def buildRecipesLookupTable(recipes: list[Recipe]) -> dict['str', Recipe]:
+    result: dict['str', Recipe] = {}
+
+    for recipe in recipes:
+        result[recipe.output.material] = recipe
+
+    return result
+
 recipes = getRecipes()
 
-print(recipes)
+recipesLookupTable = buildRecipesLookupTable(recipes)
+
+
+@dataclass
+class RequirementTreeNode:
+    pipelines: Precise
+    materialName: str
+    dependencies: list[RequirementTreeNode]
+
+def assembleRequirementTree(recipe: Recipe, count: Precise, time: Precise) -> RequirementTreeNode:
+    debug = recipe.output.material == "purple science"
+
+    # How many pipelines to get 1 pipeline worth every "time" period 
+    onePipelineInTime = recipe.time.div(time)
+
+    # How many pipelines to achieve the count
+    pipelinesToAchieveCount = count.div(Precise(recipe.output.count))
+
+    pipelinesNeeded = onePipelineInTime.mul(pipelinesToAchieveCount)
+
+    if debug:
+        ppprint(time)
+        ppprint(count)
+        ppprint(recipe.time)
+        ppprint(Precise(recipe.output.count))
+        ppprint(onePipelineInTime)
+        ppprint(pipelinesToAchieveCount)
+        ppprint(pipelinesNeeded)
+
+
+    dependencies: list[RequirementTreeNode] = []
+    for source in recipe.sources:
+        # How many items of this source I need
+        totalNeed = Precise(source.count).mul(pipelinesNeeded)
+        dependencyRecipe = recipesLookupTable.get(source.material)
+        if dependencyRecipe != None:
+            dependencyNone = assembleRequirementTree(dependencyRecipe, totalNeed, recipe.time)
+            dependencies.append(dependencyNone)
+        else:
+            dependencies.append(RequirementTreeNode(totalNeed, '{} (N/R)'.format(source.material), []))
+
+
+    return RequirementTreeNode(pipelinesNeeded, recipe.output.material, dependencies)
+
+def formatRequirementTree(tree: RequirementTreeNode) -> str:
+    lines: list[str] = []
+
+    def flush(tree: RequirementTreeNode, i: int):
+        indentation = "    " * i
+        rootLine = "{}{} {}".format(indentation, tree.pipelines.decimalish(), tree.materialName)
+        lines.append(rootLine)
+        for dep in tree.dependencies:
+            flush(dep, i + 1)
+        
+    i = 0
+    flush(tree, i)
+
+    return "\r\n".join(lines)
+
+print(formatRequirementTree(assembleRequirementTree(recipesLookupTable['purple science'], Precise(3), decimal(0, 5))))
