@@ -23,7 +23,7 @@ class Precise:
     bottom: int = 1
 
     def isFraction(self) -> bool:
-        return self.bottom == 1
+        return self.bottom != 1
 
     def simplified(self) -> Precise:
         if not self.isFraction():
