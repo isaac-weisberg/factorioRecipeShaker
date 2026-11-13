@@ -1,10 +1,18 @@
-import copy
+from copy import deepcopy
+from array import array
 
-def simplify(top, bottom, against) -> tuple[bool, int, int]:
+def simplify(top: int, bottom: int, against: int) -> tuple[bool, int, int]:
     if top % against == 0 and bottom % against == 0:
-        return (True, top / against, bottom / against)
+        return (True, top // against, bottom // against)
 
     return (False, top, bottom)
+
+def decimal(whole: int, fraction: int) -> Precise:
+    base = 10
+    while fraction >= base:
+        base = base * 10
+
+    return Precise(True, whole * base + fraction, base).simplified()
 
 class Precise:
     fraction: bool
@@ -19,7 +27,7 @@ class Precise:
     def simplified(self) -> Precise:
         if not self.fraction:
             return self
-        result = copy.deepcopy(self)
+        result = deepcopy(self)
         for against in [7, 5, 3, 2]:
             simplified = True
             while simplified:
@@ -48,4 +56,25 @@ class Precise:
         else:
             return "{}".format(self.top)
 
+class RecipeSource:
+    material: str
+    count: int
 
+    def __init__(self, material: str, count: int):
+        self.material = material
+        self.count = count
+
+class Recipe:
+    sources: list[RecipeSource]
+    time: Precise
+    output: RecipeSource
+
+    def __init__(self, sources: list[RecipeSource], time: Precise, output: RecipeSource):
+        self.sources = sources
+        self.time = time
+        self.output = output
+
+recipes = [
+    Recipe([RecipeSource('stone', 2)], decimal(3, 2), RecipeSource('brick', 1)),
+    Recipe([RecipeSource('iron', 1)], decimal(0, 5), RecipeSource('stick', 2)),
+]
