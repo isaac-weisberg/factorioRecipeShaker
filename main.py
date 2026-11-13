@@ -217,10 +217,10 @@ def simplifyTree(tree: RequirementTreeNode) -> tuple[RequirementTreeNode, str]:
 
     divideQuantitiesByDivisor(result, divisor)
 
-    return (result, 'simplified with devisor {}'.format(divisor))
+    return (result, 'simplified with divisor {}'.format(divisor))
 
 
-tree = assembleRequirementTree(recipesLookupTable['purple science'], Precise(3), decimal(0, 5))
+tree = assembleRequirementTree(recipesLookupTable['purple science'], Precise(3), decimal(0, 25))
 simplifiedTree, result = simplifyTree(tree)
 print("Simplify result {}".format(result))
 print(formatRequirementTree(simplifiedTree))
