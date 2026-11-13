@@ -1,5 +1,6 @@
 from copy import deepcopy
 from array import array
+from dataclasses import dataclass
 
 def simplify(top: int, bottom: int, against: int) -> tuple[bool, int, int]:
     if top % against == 0 and bottom % against == 0:
@@ -12,21 +13,20 @@ def decimal(whole: int, fraction: int) -> Precise:
     while fraction >= base:
         base = base * 10
 
-    return Precise(True, whole * base + fraction, base).simplified()
+    return Precise(whole * base + fraction, base).simplified()
 
+@dataclass
 class Precise:
-    fraction: bool
     top: int
-    bottom: int
+    bottom: int = 1
 
-    def __init__(self, fraction, top, bottom = 1):
-        self.fraction = fraction
-        self.top = top
-        self.bottom = bottom
+    def isFraction(self) -> bool:
+        return self.bottom == 1
 
     def simplified(self) -> Precise:
-        if not self.fraction:
+        if not self.isFraction():
             return self
+
         result = deepcopy(self)
         for against in [7, 5, 3, 2]:
             simplified = True
@@ -37,44 +37,99 @@ class Precise:
                     result.top = simple[1]
                     result.bottom = simple[2]
 
-        if result.bottom == 1:
-            result.fraction = False
-
         return result
 
     def mul(self, rhs: Precise) -> Precise:
-        if self.fraction == rhs.fraction and self.fraction:
-            return Precise(False, self.top * rhs.top)
-        return Precise(True, self.top * rhs.top, self.bottom * rhs.bottom).simplified()
+        if self.isFraction() == rhs.isFraction() and self.isFraction():
+            return Precise(self.top * rhs.top)
+        return Precise(self.top * rhs.top, self.bottom * rhs.bottom).simplified()
 
     def div(self, rhs: Precise) -> Precise:
-        return self.mul(Precise(True, rhs.bottom, rhs.top)).simplified()
+        return self.mul(Precise(rhs.bottom, rhs.top)).simplified()
 
     def decimalish(self) -> str:
-        if self.fraction:
+        if self.isFraction():
             return "{}/{} ({:.2f})".format(self.top, self.bottom, self.top / self.bottom)
         else:
             return "{}".format(self.top)
 
+@dataclass
 class RecipeSource:
     material: str
     count: int
 
-    def __init__(self, material: str, count: int):
-        self.material = material
-        self.count = count
-
+@dataclass
 class Recipe:
     sources: list[RecipeSource]
     time: Precise
     output: RecipeSource
 
-    def __init__(self, sources: list[RecipeSource], time: Precise, output: RecipeSource):
-        self.sources = sources
-        self.time = time
-        self.output = output
+def getRecipes() -> list[Recipe]:
+    def parseTime(s: str) -> Precise:
+        secondsString = entry.split('s')[0]
+        if '.' in secondsString:
+            parts = secondsString.split('.')
+            whole = int(parts[0])
+            fraction = int(parts[1])
+            time = decimal(whole, fraction)
+        else:
+            whole = int(secondsString)
+            time = Precise(whole)
 
-recipes = [
-    Recipe([RecipeSource('stone', 2)], decimal(3, 2), RecipeSource('brick', 1)),
-    Recipe([RecipeSource('iron', 1)], decimal(0, 5), RecipeSource('stick', 2)),
-]
+        return time
+
+    def parseRecipeSource(s: str) -> RecipeSource:
+        parts = s.split(" ")
+        countString = parts[0]
+        count = int(countString)
+        name = " ".join(parts[1:])
+
+        return RecipeSource(name, count)
+
+    filePath = 'recipes.txt'
+
+    with open(filePath, 'r') as file:
+        file_content = file.read()
+
+    lines = file_content.splitlines()
+
+    recipes: list[Recipe] = []
+
+    for line in lines:
+        entries = line.split(", ")
+
+        stage = 0
+        
+        sources: list[RecipeSource] = []
+        time: Precise | None = None
+        output: RecipeSource | None = None
+        for entry in entries:
+            if stage == 0:
+                if entry[-1] == 's' and entry[-2].isdigit():
+                    stage = 1
+
+                    time = parseTime(entry)
+                else:
+                    recipe = parseRecipeSource(entry)
+                    sources.append(recipe)
+            else:
+                output = parseRecipeSource(entry)
+
+        if len(sources) == 0:
+            raise RuntimeError('no sources {}'.format(line))
+
+        if time == None:
+            raise RuntimeError('no time {}'.format(line))
+        
+        if output == None:
+            raise RuntimeError('no output {}'.format(output))
+        
+        recipe = Recipe(sources, time, output)
+        recipes.append(recipe)
+
+    return recipes
+
+
+recipes = getRecipes()
+
+print(recipes)

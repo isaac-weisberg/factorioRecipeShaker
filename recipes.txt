@@ -1,0 +1,11 @@
+1 furnace, 1 productivity, 30 rail, 21s, 3 purple
+5 red circuit, 10 plate, 10 bricks, 5s, 1 furnace
+5 red circuit, 5 green circuit, 15s, 1 productivity
+1 stick, 1 plate, 1 rock, 0.5s, 2 rail
+4 cable, 2 green circuit, 2 plastic, 6s, 1 red circuit
+1 coal, 20 gas, 1s, 2 plastic
+1 cable, 1 iron, 0.5s, 1 green circuit
+1 copper, 0.5s, 2 cable
+5 iron, 16s, 1 plate
+2 rock, 3.2s, 1 brick
+1 iron, 0.5s, 2 stick
