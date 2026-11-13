@@ -3,12 +3,7 @@ from array import array
 from dataclasses import dataclass
 from ppprint import ppprint
 from pprint import pprint
-
-def simplify(top: int, bottom: int, against: int) -> tuple[bool, int, int]:
-    if top % against == 0 and bottom % against == 0:
-        return (True, top // against, bottom // against)
-
-    return (False, top, bottom)
+from math import gcd
 
 def decimal(whole: int, fraction: int) -> Precise:
     base = 10
@@ -26,20 +21,11 @@ class Precise:
         return self.bottom != 1
 
     def simplified(self) -> Precise:
-        if not self.isFraction():
+        divisor = gcd(self.top, self.bottom)
+        if divisor == 1:
             return self
 
-        result = deepcopy(self)
-        for against in [7, 5, 3, 2]:
-            simplified = True
-            while simplified:
-                simple = simplify(result.top, result.bottom, against)
-                simplified = simple[0]
-                if simplified:
-                    result.top = simple[1]
-                    result.bottom = simple[2]
-
-        return result
+        return Precise(self.top // divisor, self.bottom // divisor)
 
     def mul(self, rhs: Precise) -> Precise:
         if self.isFraction() == rhs.isFraction() and self.isFraction():
@@ -152,8 +138,6 @@ class RequirementTreeNode:
     dependencies: list[RequirementTreeNode]
 
 def assembleRequirementTree(recipe: Recipe, count: Precise, time: Precise) -> RequirementTreeNode:
-    debug = recipe.output.material == "purple science"
-
     # How many pipelines to get 1 pipeline worth every "time" period 
     onePipelineInTime = recipe.time.div(time)
 
@@ -161,16 +145,6 @@ def assembleRequirementTree(recipe: Recipe, count: Precise, time: Precise) -> Re
     pipelinesToAchieveCount = count.div(Precise(recipe.output.count))
 
     pipelinesNeeded = onePipelineInTime.mul(pipelinesToAchieveCount)
-
-    if debug:
-        ppprint(time)
-        ppprint(count)
-        ppprint(recipe.time)
-        ppprint(Precise(recipe.output.count))
-        ppprint(onePipelineInTime)
-        ppprint(pipelinesToAchieveCount)
-        ppprint(pipelinesNeeded)
-
 
     dependencies: list[RequirementTreeNode] = []
     for source in recipe.sources:
@@ -201,4 +175,52 @@ def formatRequirementTree(tree: RequirementTreeNode) -> str:
 
     return "\r\n".join(lines)
 
-print(formatRequirementTree(assembleRequirementTree(recipesLookupTable['purple science'], Precise(3), decimal(0, 5))))
+def simplifyTree(tree: RequirementTreeNode) -> tuple[RequirementTreeNode, str]:
+    quantities: list[int] = []
+    thereIsAFraction = False
+
+    def flushQuantityOfDerivedNodes(tree: RequirementTreeNode):
+        nonlocal thereIsAFraction
+        if not tree.dependencies:
+            return
+
+        if tree.pipelines.isFraction():
+            thereIsAFraction = True
+            return
+
+        quantities.append(tree.pipelines.top)
+        for dep in tree.dependencies:
+            if thereIsAFraction:
+                break
+
+            flushQuantityOfDerivedNodes(dep)
+
+    flushQuantityOfDerivedNodes(tree)
+
+    if not quantities:
+        return (tree, 'no quantities')
+
+    if thereIsAFraction:
+        return (tree, 'there is a fraction')
+
+    divisor = gcd(*quantities)
+
+    if divisor == 1:
+        return (tree, 'doesnt get simpler')
+
+    result = deepcopy(tree)
+
+    def divideQuantitiesByDivisor(tree: RequirementTreeNode, divisor: int):
+        tree.pipelines = tree.pipelines.div(Precise(divisor))
+        for dep in tree.dependencies:
+            divideQuantitiesByDivisor(dep, divisor)
+
+    divideQuantitiesByDivisor(result, divisor)
+
+    return (result, 'simplified with devisor {}'.format(divisor))
+
+
+tree = assembleRequirementTree(recipesLookupTable['purple science'], Precise(3), decimal(0, 5))
+simplifiedTree, result = simplifyTree(tree)
+print("Simplify result {}".format(result))
+print(formatRequirementTree(simplifiedTree))
