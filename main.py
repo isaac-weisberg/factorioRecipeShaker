@@ -28,7 +28,7 @@ class Precise:
         return Precise(self.top // divisor, self.bottom // divisor)
 
     def mul(self, rhs: Precise) -> Precise:
-        if self.isFraction() == rhs.isFraction() and self.isFraction():
+        if self.isFraction() == rhs.isFraction() and not self.isFraction():
             return Precise(self.top * rhs.top)
         return Precise(self.top * rhs.top, self.bottom * rhs.bottom).simplified()
 
@@ -157,7 +157,6 @@ def assembleRequirementTree(recipe: Recipe, count: Precise, time: Precise) -> Re
         else:
             dependencies.append(RequirementTreeNode(totalNeed, '{} (N/R)'.format(source.material), []))
 
-
     return RequirementTreeNode(pipelinesNeeded, recipe.output.material, dependencies)
 
 def formatRequirementTree(tree: RequirementTreeNode) -> str:
@@ -220,7 +219,7 @@ def simplifyTree(tree: RequirementTreeNode) -> tuple[RequirementTreeNode, str]:
     return (result, 'simplified with divisor {}'.format(divisor))
 
 
-tree = assembleRequirementTree(recipesLookupTable['purple science'], Precise(3), decimal(0, 25))
+tree = assembleRequirementTree(recipesLookupTable['purple science'], Precise(1), decimal(0, 5))
 simplifiedTree, result = simplifyTree(tree)
 print("Simplify result {}".format(result))
 print(formatRequirementTree(simplifiedTree))
