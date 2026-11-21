@@ -9,6 +9,11 @@ gas=N/R
 rock=N/R
 
 [RECIPES]
+40 gear, 2 underground belt, 2s, 2 red underground belt
+10 iron, 5 belt, 1s, 2 underground belt
+10 green circuit, 10 gear, 1 splitter, 2s, 1 red splitter
+5 green circuit, 5 iron, 4 belt, 1s, 1 splitter
+5 gear, 1 belt, 0.5s, 1 red belt
 1 electric furnace, 1 productivity, 30 rail, 21s, 3 purple science
 5 red circuit, 10 plate, 10 brick, 5s, 1 electric furnace
 5 red circuit, 5 green circuit, 15s, 1 productivity
