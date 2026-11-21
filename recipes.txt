@@ -6,9 +6,13 @@ iron=N/R
 copper=N/R
 water=N/R
 gas=N/R
-rock=N/R
+stone=N/R
 
 [RECIPES]
+2 copper, 1 plate, 2 yellow round, 6s, 2 red round
+4 iron, 1s, 1 yellow round
+20 iron, 10 copper, 10 gear, 8s, 1 gun turret
+5 brick, 0.5s, 1 wall
 40 gear, 2 underground belt, 2s, 2 red underground belt
 10 iron, 5 belt, 1s, 2 underground belt
 10 green circuit, 10 gear, 1 splitter, 2s, 1 red splitter
@@ -17,13 +21,13 @@ rock=N/R
 1 electric furnace, 1 productivity, 30 rail, 21s, 3 purple science
 5 red circuit, 10 plate, 10 brick, 5s, 1 electric furnace
 5 red circuit, 5 green circuit, 15s, 1 productivity
-1 stick, 1 plate, 1 rock, 0.5s, 2 rail
+1 stick, 1 plate, 1 stone, 0.5s, 2 rail
 4 cable, 2 green circuit, 2 plastic, 6s, 1 red circuit
 1 coal, 20 gas, 1s, 2 plastic
 1 cable, 1 iron, 0.5s, 1 green circuit
 1 copper, 0.5s, 2 cable
 5 iron, 16s, 1 plate
-2 rock, 3.2s, 1 brick
+2 stone, 3.2s, 1 brick
 1 iron, 0.5s, 2 stick
 1 inserter, 1 belt, 6s, 1 green science
 1 green circuit, 1 gear, 1 iron, 0.5s, 1 inserter

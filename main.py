@@ -310,11 +310,11 @@ def main():
     recipes, pragmas = getRecipes()
 
     recipeBook = RecipeBook(recipes, pragmas)
-    productivity = Productivity(decimal(1, 0), Precise(2))
+    productivity = Productivity(decimal(0, 75), Precise(2))
 
     environment = Environment(recipeBook, productivity)
 
-    tree = assembleRequirementTree(environment, 'red splitter', decimal(1), decimal(2, 0))
+    tree = assembleRequirementTree(environment, 'red round', decimal(1), decimal(2))
     formatted = formatRequirementTree(tree)
     # tree, result = simplifyTree(tree)
     # print("Simplify result {}".format(result))
